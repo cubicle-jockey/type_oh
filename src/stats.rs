@@ -86,6 +86,10 @@ impl Stats {
             .sum()
     }
 
+    pub fn reset(&mut self) {
+        self.records.clear();
+    }
+
     pub fn get_char_stats(&self, char_id: &AsciiChars) -> Option<StatSummary> {
         self.records.get(char_id).map(|record| {
             let hits: Vec<u64> = record
@@ -122,8 +126,8 @@ impl Stats {
     }
 
     pub fn generate_html_report(&self) -> String {
-        let mut html = String::new();
-        html.push_str("<html><body><h1>Stats Report</h1><table border='1'>");
+        let mut html = String::with_capacity(4096);
+        html.push_str("<html><body><h1>Status Report</h1><table border='1'>");
         html.push_str("<tr><th>Character</th><th>Hits</th><th>LowMS</th><th>HighMS</th><th>AvgMS</th><th>Misses</th></tr>");
 
         let mut keys: Vec<&AsciiChars> = self.records.keys().collect();

@@ -254,6 +254,26 @@ pub fn App() -> impl IntoView {
         }
     };
 
+    let reset_stats = move |_| {
+        if let Ok(mut stats) = STATS.get().unwrap().lock() {
+            stats.reset();
+        }
+        next_char();
+        if let Some(hit) = hit_ref.get() {
+            hit.set_inner_text("Hits: 0");
+        }
+        if let Some(miss) = miss_ref.get() {
+            miss.set_inner_text("Misses: 0");
+        }
+        if let Some(report) = report_ref.get() {
+            report.set_inner_html("");
+        }
+        if let Some(input) = input_ref.get() {
+            let _ = input.focus();
+        }
+        restart_timer();
+    };
+
     view! {
         <main class="container">
             <p id="want-input">{ move || the_char.get() }</p>
@@ -265,7 +285,8 @@ pub fn App() -> impl IntoView {
                     maxlength="1"
                     on:input=update_theirs
                 />
-                <button type="submit">"Greet"</button>
+
+                <button type="button" on:click=reset_stats>"Reset"</button>
                 <button type="button" on:click=update_report>"Update Report"</button>
             </form>
             <p id="hits" node_ref=hit_ref></p>
@@ -276,3 +297,4 @@ pub fn App() -> impl IntoView {
         </main>
     }
 }
+// <button type="submit">"Greet"</button>
