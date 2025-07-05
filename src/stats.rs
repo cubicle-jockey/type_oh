@@ -52,4 +52,28 @@ impl Stats {
     pub fn get_record(&self, char_id: &AsciiChars) -> Option<&StatRecord> {
         self.records.get(char_id)
     }
+
+    pub fn get_total_hit_count(&self) -> usize {
+        self.records
+            .values()
+            .map(|r| {
+                r.results
+                    .iter()
+                    .filter(|&hit| matches!(hit, HitType::Hit(_, _)))
+                    .count()
+            })
+            .sum()
+    }
+
+    pub fn get_total_miss_count(&self) -> usize {
+        self.records
+            .values()
+            .map(|r| {
+                r.results
+                    .iter()
+                    .filter(|&hit| matches!(hit, HitType::Miss(_)))
+                    .count()
+            })
+            .sum()
+    }
 }

@@ -115,7 +115,15 @@ pub fn App() -> impl IntoView {
     //     </main>
     // }
     let input_ref = NodeRef::<html::Input>::new();
+    let hit_ref = NodeRef::<html::P>::new();
+    let miss_ref = NodeRef::<html::P>::new();
 
+    // Focus the input on component mount
+    Effect::new(move |_| {
+        if let Some(input) = input_ref.get() {
+            let _ = input.focus();
+        }
+    });
     let check_result = move |ev: SubmitEvent| {
         ev.prevent_default();
         spawn_local(async move {
@@ -142,12 +150,29 @@ pub fn App() -> impl IntoView {
                 if let Some(input) = input_ref.get() {
                     input.set_value("");
                 }
+
+                // Update hit count
+                if let Some(hit) = hit_ref.get() {
+                    let current_hits = STATS.get().unwrap().lock().unwrap().get_total_hit_count();
+                    let current_hits = format!("Hits: {}", current_hits);
+
+                    hit.set_inner_text(&current_hits);
+                }
             } else {
                 let now = chrono::Local::now().naive_local();
                 add_miss(AsciiChars::from_char(want_char).unwrap(), now);
 
                 if let Some(input) = input_ref.get() {
                     input.set_value("");
+                }
+
+                // Update misses count
+                if let Some(miss) = miss_ref.get() {
+                    let current_misses =
+                        STATS.get().unwrap().lock().unwrap().get_total_miss_count();
+                    let current_misses = format!("Misses: {}", current_misses);
+
+                    miss.set_inner_text(&current_misses);
                 }
             }
 
@@ -172,6 +197,8 @@ pub fn App() -> impl IntoView {
                 />
                 <button type="submit">"Greet"</button>
             </form>
+            <p id="hits" node_ref=hit_ref></p>
+            <p id="misses" node_ref=miss_ref></p>
 
         </main>
     }
