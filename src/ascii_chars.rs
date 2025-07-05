@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[enum_extend(IntType = "u8")]
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Ord, PartialOrd, Serialize, Deserialize)]
 
 pub enum AsciiChars {
     Exclamation = 33,

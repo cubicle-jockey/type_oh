@@ -113,6 +113,7 @@ pub fn App() -> impl IntoView {
     let input_ref = NodeRef::<html::Input>::new();
     let hit_ref = NodeRef::<html::P>::new();
     let miss_ref = NodeRef::<html::P>::new();
+    let report_ref = NodeRef::<html::Div>::new();
 
     // Focus the input on component mount
     Effect::new(move |_| {
@@ -215,7 +216,8 @@ pub fn App() -> impl IntoView {
 
                     // Update hit count
                     if let Some(hit) = hit_ref.get() {
-                        let current_hits = STATS.get().unwrap().lock().unwrap().get_total_hit_count();
+                        let current_hits =
+                            STATS.get().unwrap().lock().unwrap().get_total_hit_count();
                         let current_hits = format!("Hits: {}", current_hits);
 
                         hit.set_inner_text(&current_hits);
@@ -243,6 +245,15 @@ pub fn App() -> impl IntoView {
         }
     };
 
+    let update_report = move |_| {
+        if let Some(report) = report_ref.get() {
+            let stats = STATS.get().unwrap().lock().unwrap();
+            let report_content = stats.generate_html_report();
+
+            report.set_inner_html(&report_content);
+        }
+    };
+
     view! {
         <main class="container">
             <p id="want-input">{ move || the_char.get() }</p>
@@ -255,9 +266,12 @@ pub fn App() -> impl IntoView {
                     on:input=update_theirs
                 />
                 <button type="submit">"Greet"</button>
+                <button type="button" on:click=update_report>"Update Report"</button>
             </form>
             <p id="hits" node_ref=hit_ref></p>
             <p id="misses" node_ref=miss_ref></p>
+            <div id="report"
+                node_ref=report_ref></div>
 
         </main>
     }
