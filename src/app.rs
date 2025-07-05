@@ -79,10 +79,6 @@ pub fn App() -> impl IntoView {
         set_the_char.set(char.as_char().to_string());
     };
     let (theirs, set_theirs) = signal(String::new());
-    let update_theirs = move |ev| {
-        let v = event_target_value(&ev);
-        set_theirs.set(v);
-    };
     // let greet = move |ev: SubmitEvent| {
     //     ev.prevent_default();
     //     spawn_local(async move {
@@ -185,6 +181,68 @@ pub fn App() -> impl IntoView {
         });
     };
 
+    let update_theirs = move |ev| {
+        let v = event_target_value(&ev);
+        set_theirs.set(v.clone());
+
+        // Auto-submit when a character is typed
+        if !v.is_empty() {
+            // Trigger the same logic as form submission
+            spawn_local(async move {
+                let want_char = the_char.get_untracked();
+                if want_char.is_empty() {
+                    return;
+                }
+
+                let theirs = theirs.get_untracked();
+                if theirs.is_empty() {
+                    return;
+                }
+
+                let their_char = theirs.chars().nth(0).unwrap();
+                let want_char = want_char.chars().nth(0).unwrap();
+
+                if their_char == want_char {
+                    let ms = stop_timer();
+                    let now = chrono::Local::now().naive_local();
+                    add_hit(AsciiChars::from_char(want_char).unwrap(), now, ms);
+
+                    next_char();
+                    // Clear DOM input
+                    if let Some(input) = input_ref.get() {
+                        input.set_value("");
+                    }
+
+                    // Update hit count
+                    if let Some(hit) = hit_ref.get() {
+                        let current_hits = STATS.get().unwrap().lock().unwrap().get_total_hit_count();
+                        let current_hits = format!("Hits: {}", current_hits);
+
+                        hit.set_inner_text(&current_hits);
+                    }
+                } else {
+                    let now = chrono::Local::now().naive_local();
+                    add_miss(AsciiChars::from_char(want_char).unwrap(), now);
+
+                    if let Some(input) = input_ref.get() {
+                        input.set_value("");
+                    }
+
+                    // Update misses count
+                    if let Some(miss) = miss_ref.get() {
+                        let current_misses =
+                            STATS.get().unwrap().lock().unwrap().get_total_miss_count();
+                        let current_misses = format!("Misses: {}", current_misses);
+
+                        miss.set_inner_text(&current_misses);
+                    }
+                }
+
+                restart_timer();
+            });
+        }
+    };
+
     view! {
         <main class="container">
             <p id="want-input">{ move || the_char.get() }</p>
@@ -193,6 +251,7 @@ pub fn App() -> impl IntoView {
                     node_ref=input_ref
                     id="greet-input"
                     placeholder="Type the character..."
+                    maxlength="1"
                     on:input=update_theirs
                 />
                 <button type="submit">"Greet"</button>
