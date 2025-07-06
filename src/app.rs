@@ -349,10 +349,13 @@ pub fn App() -> impl IntoView {
 
     view! {
         <main class="container">
-            <label>
-                <input type="checkbox" id="keyboard-toggle" on:change=toggle_keyboard/>
-                "Show Keyboard"
-            </label>
+            <div class="toggle-container">
+                <span class="toggle-label">"Show Keyboard"</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="keyboard-toggle" on:change=toggle_keyboard/>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
             <h1>"Type the Character"</h1>
             <p id="want-input">{ move || the_char.get() }</p>
             <div node_ref=svg_keyboard_ref
