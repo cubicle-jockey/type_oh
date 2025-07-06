@@ -2,7 +2,11 @@ use crate::ascii_chars::AsciiChars;
 use crate::stats::Stats;
 use chrono::NaiveDateTime;
 use leptos::task::spawn_local;
-use leptos::{ev::{Event, SubmitEvent}, html, prelude::*};
+use leptos::{
+    ev::{Event, SubmitEvent},
+    html,
+    prelude::*,
+};
 // use rand::Rng;
 use crate::common::random_byte;
 use crate::svg_keyboard::SvgKeyboard;
@@ -363,11 +367,12 @@ pub fn App() -> impl IntoView {
                     maxlength="1"
                     on:input=update_theirs
                 />
-                <div><br/>
-                  <button type="button" on:click=reset_stats>"Reset"</button>
-                  <button type="button" on:click=update_report>"Update Report"</button>
-                </div>
             </form>
+            <br/>
+            <div>
+              <button type="button" on:click=reset_stats>"Reset"</button>
+              <button type="button" on:click=update_report>"Update Report"</button>
+            </div>
             <p id="hits" node_ref=hit_ref></p>
             <p id="misses" node_ref=miss_ref></p>
             <div id="report"
