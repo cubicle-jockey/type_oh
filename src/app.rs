@@ -350,7 +350,7 @@ pub fn App() -> impl IntoView {
     view! {
         <main class="container">
             <div class="toggle-container">
-                <span class="toggle-label">"Show Keyboard"</span>
+                <span class="toggle-label">"Keyboard"</span>
                 <label class="toggle-switch">
                     <input type="checkbox" id="keyboard-toggle" on:change=toggle_keyboard/>
                     <span class="toggle-slider"></span>

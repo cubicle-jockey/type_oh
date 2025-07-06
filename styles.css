@@ -20,7 +20,7 @@
 
 .container {
     margin: 0;
-    padding-top: 10vh;
+    padding-top: 1vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -126,8 +126,8 @@ button {
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 60px;
-    height: 34px;
+    width: 30px;
+    height: 17px;
 }
 
 .toggle-switch input[type="checkbox"] {
@@ -146,17 +146,17 @@ button {
     bottom: 0;
     background-color: #ccc;
     transition: 0.4s;
-    border-radius: 34px;
+    border-radius: 17px;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
-    left: 4px;
-    bottom: 4px;
+    height: 13px;
+    width: 13px;
+    left: 2px;
+    bottom: 2px;
     background-color: white;
     transition: 0.4s;
     border-radius: 50%;
@@ -168,7 +168,7 @@ button {
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(26px);
+    transform: translateX(13px);
 }
 
 .toggle-label {

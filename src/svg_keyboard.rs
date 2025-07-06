@@ -34,7 +34,7 @@ fn shift_key_needed(key_char: &AsciiChars) -> bool {
     match c {
         'A'..='Z' => true,
         '<' | '>' | '?' | '~' | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '(' | ')' | '_'
-        | '+' => true,
+        | '+' | '{' | '}' | '|' | ':' | '"' => true,
         _ => false,
     }
 }
