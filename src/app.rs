@@ -2,7 +2,7 @@ use crate::ascii_chars::AsciiChars;
 use crate::stats::Stats;
 use chrono::NaiveDateTime;
 use leptos::task::spawn_local;
-use leptos::{ev::SubmitEvent, html, prelude::*};
+use leptos::{ev::{Event, SubmitEvent}, html, prelude::*};
 // use rand::Rng;
 use crate::common::random_byte;
 use crate::svg_keyboard::SvgKeyboard;
@@ -117,6 +117,12 @@ pub fn App() -> impl IntoView {
     let svg_keyboard_ref = NodeRef::<html::Div>::new();
 
     let (the_char, set_the_char) = signal(rand_char().as_char().to_string());
+    let (keyboard_visible, set_keyboard_visible) = signal(false);
+
+    let toggle_keyboard = move |_: Event| {
+        set_keyboard_visible.update(|visible| *visible = !*visible);
+    };
+
     let next_char = move || {
         let char = rand_char();
         set_the_char.set(char.as_char().to_string());
@@ -339,10 +345,16 @@ pub fn App() -> impl IntoView {
 
     view! {
         <main class="container">
+            <label>
+                <input type="checkbox" id="keyboard-toggle" on:change=toggle_keyboard/>
+                "Show Keyboard"
+            </label>
+            <h1>"Type the Character"</h1>
             <p id="want-input">{ move || the_char.get() }</p>
             <div node_ref=svg_keyboard_ref
                 id="svg_keyboard"
-                inner_html=SvgKeyboard::render()></div>
+                inner_html=SvgKeyboard::render()
+                hidden=move || !keyboard_visible.get()></div>
             <form class="row" on:submit=check_result>
                 <input
                     node_ref=input_ref
@@ -351,9 +363,10 @@ pub fn App() -> impl IntoView {
                     maxlength="1"
                     on:input=update_theirs
                 />
-
-                <button type="button" on:click=reset_stats>"Reset"</button>
-                <button type="button" on:click=update_report>"Update Report"</button>
+                <div><br/>
+                  <button type="button" on:click=reset_stats>"Reset"</button>
+                  <button type="button" on:click=update_report>"Update Report"</button>
+                </div>
             </form>
             <p id="hits" node_ref=hit_ref></p>
             <p id="misses" node_ref=miss_ref></p>

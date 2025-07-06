@@ -76,7 +76,6 @@ fn map_ascii_to_key_id(key_char: &AsciiChars) -> String {
 }
 
 const SVG_KEYBOARD: &'static str = r###"
-
 <svg viewBox="0 0 710 240" xmlns="http://www.w3.org/2000/svg" width="100%" height="auto" preserveAspectRatio="xMidYMid meet">
   <defs>
     <linearGradient id="keyGrad" x1="0" y1="0" x2="0" y2="1">
