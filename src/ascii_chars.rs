@@ -107,7 +107,7 @@ impl AsciiChars {
         unsafe { char::from_u32_unchecked(self.as_u8() as u32) }
     }
 
-    pub fn from_char(c: char) -> Option<Self> {
+    pub const fn from_char(c: char) -> Option<Self> {
         match c as u8 {
             33..=126 => Self::from_u8(c as u8),
             _ => None,

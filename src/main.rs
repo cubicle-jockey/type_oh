@@ -2,6 +2,7 @@ mod app;
 mod ascii_chars;
 mod common;
 mod stats;
+mod svg_keyboard;
 mod timer;
 
 use app::*;

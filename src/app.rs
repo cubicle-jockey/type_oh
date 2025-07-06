@@ -5,6 +5,7 @@ use leptos::task::spawn_local;
 use leptos::{ev::SubmitEvent, html, prelude::*};
 // use rand::Rng;
 use crate::common::random_byte;
+use crate::svg_keyboard::SvgKeyboard;
 use crate::timer::Timer;
 use serde::{Deserialize, Serialize};
 use std::sync::{Mutex, OnceLock};
@@ -25,6 +26,8 @@ fn rand_char() -> &'static AsciiChars {
 
 static STATS: OnceLock<Mutex<Stats>> = OnceLock::new();
 static TIMER: OnceLock<Mutex<Timer>> = OnceLock::new();
+
+static HIGHLIGHTED_KEYS: OnceLock<Mutex<Vec<String>>> = OnceLock::new();
 
 fn add_hit(char_id: AsciiChars, timestamp: NaiveDateTime, reaction_time: u64) {
     if let Ok(mut stats) = STATS.get().unwrap().lock() {
@@ -61,10 +64,44 @@ fn elapsed_timer() -> u64 {
     }
 }
 
+fn add_highlighted_key(key: &str) {
+    if let Some(lock) = HIGHLIGHTED_KEYS.get() {
+        if let Ok(mut keys) = lock.lock() {
+            keys.push(key.to_string());
+        }
+    }
+}
+
+fn remove_highlighted_key(key: &str) {
+    if let Some(lock) = HIGHLIGHTED_KEYS.get() {
+        if let Ok(mut keys) = lock.lock() {
+            keys.retain(|k| k != key);
+        }
+    }
+}
+
+fn clear_highlighted_keys() {
+    if let Some(lock) = HIGHLIGHTED_KEYS.get() {
+        if let Ok(mut keys) = lock.lock() {
+            keys.clear();
+        }
+    }
+}
+
+fn take_highlighted_key() -> Option<String> {
+    if let Some(lock) = HIGHLIGHTED_KEYS.get() {
+        if let Ok(mut keys) = lock.lock() {
+            return keys.pop();
+        }
+    }
+    None
+}
+
 #[component]
 pub fn App() -> impl IntoView {
     STATS.set(Mutex::new(Stats::new())).unwrap();
     TIMER.set(Mutex::new(Timer::new_started())).unwrap();
+    HIGHLIGHTED_KEYS.set(Mutex::new(Vec::new())).unwrap();
 
     // let (greet_msg, set_greet_msg) = signal(String::new());
     //
@@ -73,10 +110,40 @@ pub fn App() -> impl IntoView {
     //     set_name.set(v);
     // };
 
+    let input_ref = NodeRef::<html::Input>::new();
+    let hit_ref = NodeRef::<html::P>::new();
+    let miss_ref = NodeRef::<html::P>::new();
+    let report_ref = NodeRef::<html::Div>::new();
+    let svg_keyboard_ref = NodeRef::<html::Div>::new();
+
     let (the_char, set_the_char) = signal(rand_char().as_char().to_string());
     let next_char = move || {
         let char = rand_char();
         set_the_char.set(char.as_char().to_string());
+        svg_keyboard_ref.get().map(|el| {
+            if let Some(doc) = el.owner_document() {
+                // Remove previous highlights
+                while let Some(key) = take_highlighted_key() {
+                    if let Some(el2) = doc.get_element_by_id(&key) {
+                        let _ = el2.class_list().remove_1("key-highlight");
+                    }
+                }
+                // Highlight the new character
+                let (kb_id, kb_shift) = SvgKeyboard::get_css_ids(&char);
+
+                if let Some(el) = doc.get_element_by_id(&kb_id) {
+                    add_highlighted_key(&kb_id);
+                    let _ = el.class_list().add_1("key-highlight");
+                }
+
+                if let Some(kb_shift) = kb_shift {
+                    if let Some(el) = doc.get_element_by_id(&kb_shift) {
+                        add_highlighted_key(&kb_shift);
+                        let _ = el.class_list().add_1("key-highlight");
+                    }
+                }
+            }
+        });
     };
     let (theirs, set_theirs) = signal(String::new());
     // let greet = move |ev: SubmitEvent| {
@@ -110,10 +177,6 @@ pub fn App() -> impl IntoView {
     //         <p>{ move || the_char.get() }</p>
     //     </main>
     // }
-    let input_ref = NodeRef::<html::Input>::new();
-    let hit_ref = NodeRef::<html::P>::new();
-    let miss_ref = NodeRef::<html::P>::new();
-    let report_ref = NodeRef::<html::Div>::new();
 
     // Focus the input on component mount
     Effect::new(move |_| {
@@ -277,6 +340,9 @@ pub fn App() -> impl IntoView {
     view! {
         <main class="container">
             <p id="want-input">{ move || the_char.get() }</p>
+            <div node_ref=svg_keyboard_ref
+                id="svg_keyboard"
+                inner_html=SvgKeyboard::render()></div>
             <form class="row" on:submit=check_result>
                 <input
                     node_ref=input_ref

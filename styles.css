@@ -94,7 +94,7 @@ button {
 }
 
 #want-input {
-    font-size: 2em;
+    font-size: 3em;
     font-family: 'Source Code Pro', 'SF Mono', 'Menlo', 'Roboto Mono', 'DejaVu Sans Mono', 'Liberation Mono', 'Consolas', 'Courier New', monospace;
 }
 
@@ -107,6 +107,12 @@ button {
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
     align-self: center;
     color: #0f0f0f98;
+}
+
+.key-highlight rect {
+    fill: #ffeb3b; /* highlight yellow */
+    stroke: #fbc02d;
+    stroke-width: 2;
 }
 
 @media (prefers-color-scheme: dark) {
